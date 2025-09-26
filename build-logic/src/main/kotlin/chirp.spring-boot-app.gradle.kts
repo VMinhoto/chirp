@@ -3,6 +3,7 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 plugins {
     id("chirp.spring-boot-service")
+    id("org.springframework.boot")
     kotlin("plugin.spring")
 }
 
