@@ -1,6 +1,6 @@
-package com.vminhoto.user.infra.database.entities
+package com.vminhoto.chirp.infra.database.entities
 
-import com.vminhoto.user.domain.model.UserId
+import com.vminhoto.chirp.domain.model.UserId
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

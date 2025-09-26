@@ -1,4 +1,4 @@
-package com.vminhoto.user.domain.model
+package com.vminhoto.chirp.domain.model
 
 data class AuthenticatedUser(
     val user: User,

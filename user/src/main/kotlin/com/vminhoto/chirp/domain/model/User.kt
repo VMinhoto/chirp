@@ -1,4 +1,4 @@
-package com.vminhoto.user.domain.model
+package com.vminhoto.chirp.domain.model
 
 import java.util.UUID
 
