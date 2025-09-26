@@ -7,6 +7,8 @@ pluginManagement {
 }
 rootProject.name = "chirp"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 include("app")
 include("user")
 include("chat")
