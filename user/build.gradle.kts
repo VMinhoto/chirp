@@ -19,8 +19,11 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
 
     implementation(libs.spring.boot.starter.data.jpa)
-    implementation(libs.postgresql)
+    runtimeOnly(libs.postgresql)
 
+    implementation(libs.jwt.api)
+    runtimeOnly(libs.jwt.impl)
+    runtimeOnly(libs.jwt.jackson)
 
     testImplementation(kotlin("test"))
 }
