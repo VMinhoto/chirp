@@ -1,4 +1,4 @@
-package com.vminhoto.chirp.service.auth
+package com.vminhoto.chirp.service
 
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
 
 @Service
 class EmailVerificationService(
@@ -27,21 +26,10 @@ class EmailVerificationService(
         val userEntity = userRepository.findByEmail(email)
             ?: throw UserNotFoundException()
 
-        val existingTokens = emailVerificationTokenRepository.findByUserAndUsedAtIsNull(
-            userEntity
-        )
-
-        val now = Instant.now()
-
-        val usedTokens = existingTokens.map {
-            it.apply {
-                this.usedAt = now
-            }
-        }
-        emailVerificationTokenRepository.saveAll(usedTokens)
+        emailVerificationTokenRepository.invalidateActiveTokensForUser(userEntity)
 
         val token = EmailVerificationTokenEntity(
-            expiresAt = now.plus(expiryHours, ChronoUnit.HOURS),
+            expiresAt = Instant.now().plus(expiryHours, ChronoUnit.HOURS),
             user = userEntity,
         )
 
@@ -75,7 +63,7 @@ class EmailVerificationService(
 
     @Scheduled(cron = "0 0 3 * * *")
     fun cleanupExpiredTokens() {
-        emailVerificationTokenRepository.deleteByExpiresAt(
+        emailVerificationTokenRepository.deleteByExpiresAtLessThan(
             now = Instant.now()
         )
     }

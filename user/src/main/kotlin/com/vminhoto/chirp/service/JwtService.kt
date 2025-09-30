@@ -1,4 +1,4 @@
-package com.vminhoto.chirp.service.auth
+package com.vminhoto.chirp.service
 
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
 import com.vminhoto.chirp.domain.model.UserId
