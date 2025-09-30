@@ -3,6 +3,7 @@ package com.vminhoto.chirp.api.exception_handling
 import com.vminhoto.chirp.domain.exception.EmailNotVerifiedException
 import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
+import com.vminhoto.chirp.domain.exception.SamePasswordException
 import com.vminhoto.chirp.domain.exception.UserAlreadyExistsException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
 import org.springframework.http.HttpStatus
@@ -57,6 +58,15 @@ class AuthExceptionHandler {
         e: InvalidTokenException
     ) = mapOf(
         "code" to "EMAIL_NOT_VERIFIED",
+        "message" to e.message
+    )
+
+    @ExceptionHandler(SamePasswordException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun onSamePassword(
+        e: SamePasswordException
+    ) = mapOf(
+        "code" to "SAME_PASSWORD",
         "message" to e.message
     )
 
