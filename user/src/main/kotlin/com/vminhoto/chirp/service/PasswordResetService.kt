@@ -13,20 +13,22 @@ import com.vminhoto.chirp.infra.security.PasswordEncoder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-open class PasswordResetService(
+@Service
+class PasswordResetService(
     private val userRepository: UserRepository,
     private val passwordResetTokenRepository: PasswordResetTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val refreshTokenRepository: RefreshTokenRepository,
-    @param:Value("\$chirp.email.reset-password.expiry-minutes}")
+    @param:Value("\${chirp.email.reset-password.expiry-minutes}")
     private val expiryMinutes: Long
 ) {
     @Transactional
-    open fun requestPasswordReset(email: String) {
+    fun requestPasswordReset(email: String) {
         val user = userRepository.findByEmail(email) ?: return
 
         passwordResetTokenRepository.invalidateActiveTokensForUser(user)
@@ -41,7 +43,7 @@ open class PasswordResetService(
     }
 
     @Transactional
-    open fun resetPassword(token: String, newPassword: String) {
+    fun resetPassword(token: String, newPassword: String) {
         val resetToken = passwordResetTokenRepository.findByToken(token)
             ?: throw InvalidTokenException("Invalid password reset token")
 
@@ -76,7 +78,7 @@ open class PasswordResetService(
     }
 
     @Transactional
-    open fun changePassword(
+    fun changePassword(
         userId: UserId,
         newPassword: String,
         oldPassword: String
@@ -105,7 +107,7 @@ open class PasswordResetService(
     }
 
     @Scheduled(cron = "0 0 3 * * *")
-    open fun cleanupExpiredTokens() {
+    fun cleanupExpiredTokens() {
         passwordResetTokenRepository.deleteByExpiresAtLessThan(
             now = Instant.now()
         )
