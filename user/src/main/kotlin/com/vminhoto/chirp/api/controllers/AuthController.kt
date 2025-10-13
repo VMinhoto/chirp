@@ -10,6 +10,7 @@ import com.vminhoto.chirp.api.dto.ResetPasswordRequest
 import com.vminhoto.chirp.api.dto.UserDto
 import com.vminhoto.chirp.api.mappers.toAuthenticatedUserDto
 import com.vminhoto.chirp.api.mappers.toUserDto
+import com.vminhoto.chirp.infra.rate_limiting.EmailRateLimiter
 import com.vminhoto.chirp.service.AuthService
 import com.vminhoto.chirp.service.EmailVerificationService
 import com.vminhoto.chirp.service.PasswordResetService
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/auth")
-class AuthController(private val authService: AuthService,
-                     private val emailVerificationService: EmailVerificationService,
-                     private val passwordResetService: PasswordResetService,
+class AuthController(
+    private val authService: AuthService,
+    private val emailVerificationService: EmailVerificationService,
+    private val passwordResetService: PasswordResetService,
+    private val emailRateLimiter: EmailRateLimiter
 ) {
 
     @PostMapping("/register")
@@ -56,6 +59,18 @@ class AuthController(private val authService: AuthService,
         return authService
             .refresh(body.refreshToken)
             .toAuthenticatedUserDto()
+    }
+
+    @PostMapping("/resend-verification")
+    fun resendVerification(
+        @Valid @RequestBody body: EmailRequest
+    ) {
+        emailRateLimiter.withRateLimit(
+            email = body.email
+        ) {
+            emailVerificationService.resendVerificationEmail(body.email)
+
+        }
     }
 
     @GetMapping("/verify")
