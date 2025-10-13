@@ -3,6 +3,7 @@ package com.vminhoto.chirp.api.exception_handling
 import com.vminhoto.chirp.domain.exception.EmailNotVerifiedException
 import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
+import com.vminhoto.chirp.domain.exception.RateLimitException
 import com.vminhoto.chirp.domain.exception.SamePasswordException
 import com.vminhoto.chirp.domain.exception.UserAlreadyExistsException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
@@ -67,6 +68,15 @@ class AuthExceptionHandler {
         e: SamePasswordException
     ) = mapOf(
         "code" to "SAME_PASSWORD",
+        "message" to e.message
+    )
+
+    @ExceptionHandler(RateLimitException::class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    fun onRateLimitExceeded(
+        e: RateLimitException
+    ) = mapOf(
+        "code" to "RATE_LIMIT_EXCEEDED",
         "message" to e.message
     )
 
