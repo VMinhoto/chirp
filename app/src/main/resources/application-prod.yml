@@ -5,3 +5,6 @@ spring:
 
 jwt:
   expiration-minutes: 10
+
+nginx:
+  require-proxy: true
