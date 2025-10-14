@@ -72,7 +72,7 @@ class IpResolver(
         proxyIp: String
     ): String? {
         return request.getHeader("X-Real-IP")?. let { header ->
-            validateAndNormalizeIp(header, "X-REAL-IP", proxyIp)
+            validateAndNormalizeIp(header, "X-Real-IP", proxyIp)
         }
     }
 
