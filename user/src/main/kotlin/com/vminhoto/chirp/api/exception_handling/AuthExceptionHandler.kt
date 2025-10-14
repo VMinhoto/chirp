@@ -5,6 +5,7 @@ import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.RateLimitException
 import com.vminhoto.chirp.domain.exception.SamePasswordException
+import com.vminhoto.chirp.domain.exception.UnauthorizedException
 import com.vminhoto.chirp.domain.exception.UserAlreadyExistsException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
 import org.springframework.http.HttpStatus
@@ -59,6 +60,15 @@ class AuthExceptionHandler {
         e: InvalidTokenException
     ) = mapOf(
         "code" to "EMAIL_NOT_VERIFIED",
+        "message" to e.message
+    )
+
+    @ExceptionHandler(UnauthorizedException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun onUnauthorized(
+        e: UnauthorizedException
+    ) = mapOf(
+        "code" to "UNAUTHORIZED",
         "message" to e.message
     )
 
