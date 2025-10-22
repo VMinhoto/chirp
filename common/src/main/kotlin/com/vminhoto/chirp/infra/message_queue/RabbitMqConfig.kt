@@ -17,6 +17,10 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class RabbitMqConfig {
 
+    /**
+     * Function that returns a Jackson2JsonMessageConverter to serialize messages to our specific class.
+     * @return Jackson2JsonMessageConverter
+     */
     @Bean
     fun messageConverter(): Jackson2JsonMessageConverter {
         val objectMapper = ObjectMapper().apply {
@@ -42,6 +46,10 @@ class RabbitMqConfig {
         }
     }
 
+    /**
+     * Function that returns a template using our the previously defined Jackson2MessageConverter
+     * @return RabbitTemplate
+     */
     @Bean
     fun rabbitTemplate(
         connectionFactory: ConnectionFactory,
