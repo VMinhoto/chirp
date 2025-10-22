@@ -1,5 +1,6 @@
 package com.vminhoto.chirp.service
 
+import com.vminhoto.chirp.domain.events.user.UserEvent
 import com.vminhoto.chirp.domain.exception.EmailNotVerifiedException
 import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
@@ -13,6 +14,7 @@ import com.vminhoto.chirp.infra.database.entities.UserEntity
 import com.vminhoto.chirp.infra.database.mappers.toUser
 import com.vminhoto.chirp.infra.database.repositories.RefreshTokenRepository
 import com.vminhoto.chirp.infra.database.repositories.UserRepository
+import com.vminhoto.chirp.infra.message_queue.EventPublisher
 import com.vminhoto.chirp.infra.security.PasswordEncoder
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -28,7 +30,8 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val emailVerificationService: EmailVerificationService
+    private val emailVerificationService: EmailVerificationService,
+    private val eventPublisher: EventPublisher
 ) {
 
     @Transactional
@@ -52,6 +55,15 @@ class AuthService(
         ).toUser()
 
         val token = emailVerificationService.createVerificationToken(trimmedEmail)
+
+        eventPublisher.publish(
+            event = UserEvent.Created(
+                userId = savedUser.id,
+                email = savedUser.email,
+                username = savedUser.username,
+                verificationToken = token.token
+            )
+        )
 
         return savedUser
 
