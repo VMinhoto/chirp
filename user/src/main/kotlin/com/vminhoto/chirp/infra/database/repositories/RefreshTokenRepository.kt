@@ -1,6 +1,6 @@
 package com.vminhoto.chirp.infra.database.repositories
 
-import com.vminhoto.chirp.domain.model.UserId
+import com.vminhoto.chirp.domain.type.UserId
 import com.vminhoto.chirp.infra.database.entities.RefreshTokenEntity
 import org.springframework.data.jpa.repository.JpaRepository
 

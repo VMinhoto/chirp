@@ -1,7 +1,7 @@
 package com.vminhoto.chirp.service
 
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
-import com.vminhoto.chirp.domain.model.UserId
+import com.vminhoto.chirp.domain.type.UserId
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys

@@ -4,7 +4,7 @@ import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.SamePasswordException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
-import com.vminhoto.chirp.domain.model.UserId
+import com.vminhoto.chirp.domain.type.UserId
 import com.vminhoto.chirp.infra.database.entities.PasswordResetTokenEntity
 import com.vminhoto.chirp.infra.database.repositories.PasswordResetTokenRepository
 import com.vminhoto.chirp.infra.database.repositories.RefreshTokenRepository

@@ -7,7 +7,7 @@ import com.vminhoto.chirp.domain.exception.UserAlreadyExistsException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
 import com.vminhoto.chirp.domain.model.AuthenticatedUser
 import com.vminhoto.chirp.domain.model.User
-import com.vminhoto.chirp.domain.model.UserId
+import com.vminhoto.chirp.domain.type.UserId
 import com.vminhoto.chirp.infra.database.entities.RefreshTokenEntity
 import com.vminhoto.chirp.infra.database.entities.UserEntity
 import com.vminhoto.chirp.infra.database.mappers.toUser
