@@ -54,18 +54,6 @@ class RabbitMqConfig {
         }
     }
 
-    @Bean
-    fun rabbitListenerContainerFactory(
-        connectionFactory: ConnectionFactory,
-        transactionManagement: PlatformTransactionManager
-    ): SimpleRabbitListenerContainerFactory {
-        return SimpleRabbitListenerContainerFactory().apply {
-            this.setConnectionFactory(connectionFactory)
-            this.setTransactionManager(transactionManagement)
-            this.setChannelTransacted(true)
-        }
-    }
-
     /**
      * Function that returns a template using our the previously defined Jackson2MessageConverter
      * @return RabbitTemplate
