@@ -1,5 +1,6 @@
 package com.vminhoto.chirp.service
 
+import com.vminhoto.chirp.domain.events.user.UserEvent
 import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.SamePasswordException
@@ -9,6 +10,7 @@ import com.vminhoto.chirp.infra.database.entities.PasswordResetTokenEntity
 import com.vminhoto.chirp.infra.database.repositories.PasswordResetTokenRepository
 import com.vminhoto.chirp.infra.database.repositories.RefreshTokenRepository
 import com.vminhoto.chirp.infra.database.repositories.UserRepository
+import com.vminhoto.chirp.infra.message_queue.EventPublisher
 import com.vminhoto.chirp.infra.security.PasswordEncoder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
@@ -25,7 +27,8 @@ class PasswordResetService(
     private val passwordEncoder: PasswordEncoder,
     private val refreshTokenRepository: RefreshTokenRepository,
     @param:Value("\${chirp.email.reset-password.expiry-minutes}")
-    private val expiryMinutes: Long
+    private val expiryMinutes: Long,
+    private val eventPublisher: EventPublisher
 ) {
     @Transactional
     fun requestPasswordReset(email: String) {
@@ -39,7 +42,15 @@ class PasswordResetService(
         )
         passwordResetTokenRepository.save(token)
 
-        // TODO: Inform notification service about password reset trigger to send email
+        eventPublisher.publish(
+            event = UserEvent.RequestResetPassword(
+                userId = user.id!!,
+                email = user.email,
+                username = user.username,
+                passwordResetToken = token.token,
+                expiresInMinutes = expiryMinutes
+            )
+        )
     }
 
     @Transactional
