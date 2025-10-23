@@ -2,6 +2,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  mail:
+    host: smtp.mailgun.org
+    username: chirpdevtest@sandbox605ed02b68f44f239255ebd2d5a4ef24.mailgun.org
 
 jwt:
   expiration-minutes: 10
