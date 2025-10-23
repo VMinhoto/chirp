@@ -1,15 +1,17 @@
 package com.vminhoto.chirp.infra.message_queue
 
 import com.vminhoto.chirp.domain.events.user.UserEvent
+import com.vminhoto.chirp.infra.service.EmailService
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 
 /**
  * Class that Listens to User Events and handles notifications accordingly
  */
 @Component
-class NotificationUserEventListener {
+class NotificationUserEventListener(private val emailService: EmailService) {
 
     /**
      * This function receives a UserEvent from the NOTIFICATION_USER_EVENTS queue and runs the corresponding function
@@ -21,13 +23,32 @@ class NotificationUserEventListener {
     fun handleUserEvent(event: UserEvent) {
         when (event) {
             is UserEvent.Created -> {
-                println("User created!")
+
+                emailService.sendVerificationEmail(
+                    email = event.email,
+                    username = event.username,
+                    userId = event.userId,
+                    token = event.verificationToken
+                )
             }
-            is UserEvent.RequestResendPassword -> {
-                println("User request resend password!")
+            is UserEvent.RequestResetPassword -> {
+                emailService.sendPasswordResetEmail(
+                    email = event.email,
+                    username = event.username,
+                    userId = event.userId,
+                    token = event.passwordResetToken,
+                    expiresIn = Duration.ofMinutes(event.expiresInMinutes)
+                )
+
             }
             is UserEvent.RequestResendVerification -> {
-                println("User request resend verification!")
+                emailService.sendVerificationEmail(
+                    email = event.email,
+                    username = event.username,
+                    userId = event.userId,
+                    token = event.verificationToken
+                )
+
             }
             else -> Unit
         }
