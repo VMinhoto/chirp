@@ -2,6 +2,7 @@ package com.vminhoto.chirp.infra.message_queue
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.vminhoto.chirp.domain.events.ChirpEvent
 import com.vminhoto.chirp.domain.events.user.UserEventConstants
@@ -13,8 +14,10 @@ import org.springframework.amqp.support.converter.Jackson2JavaTypeMapper
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @Configuration
+@EnableTransactionManagement
 class RabbitMqConfig {
 
     /**
@@ -25,6 +28,7 @@ class RabbitMqConfig {
     fun messageConverter(): Jackson2JsonMessageConverter {
         val objectMapper = ObjectMapper().apply {
             registerModule(KotlinModule.Builder().build())
+            registerModule(JavaTimeModule())
             findAndRegisterModules()
 
             // Says if want to serialize anything that has the ChirpEvent interface as parent class. Also serialize the
