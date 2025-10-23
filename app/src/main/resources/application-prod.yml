@@ -13,6 +13,8 @@ nginx:
   require-proxy: true
 
 chirp:
+  email:
+    url: "https://chirp.temp.com"
   rate-limit:
     ip:
       apply-limit: true
