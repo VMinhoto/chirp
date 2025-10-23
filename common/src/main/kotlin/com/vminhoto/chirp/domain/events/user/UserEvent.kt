@@ -72,15 +72,16 @@ sealed class UserEvent(
      * @property userId UUID of the user associated to the event
      * @property email email of the user associated to the event
      * @property username username of the user associated to the event
-     * @property verificationToken
+     * @property passwordResetToken
      * @property eventKey key related to the event type. Default: USER_VERIFIED
      *
      */
-    data class RequestResendPassword(
+    data class RequestResetPassword(
         val userId: UserId,
         val email: String,
         val username: String,
-        val verificationToken: String,
+        val passwordResetToken: String,
+        val expiresInMinutes: Long,
         override val eventKey: String = UserEventConstants.USER_REQUEST_RESET_PASSWORD
     ): UserEvent(), ChirpEvent
 
