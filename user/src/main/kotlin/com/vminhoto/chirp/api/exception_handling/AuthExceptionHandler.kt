@@ -5,7 +5,7 @@ import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
 import com.vminhoto.chirp.domain.exception.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.RateLimitException
 import com.vminhoto.chirp.domain.exception.SamePasswordException
-import com.vminhoto.chirp.domain.exception.UnauthorizedException
+import com.vminhoto.chirp.domain.exceptions.UnauthorizedException
 import com.vminhoto.chirp.domain.exception.UserAlreadyExistsException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
 import org.springframework.http.HttpStatus
