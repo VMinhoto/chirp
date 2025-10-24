@@ -1,4 +1,4 @@
-package com.vminhoto.chirp.domain.entities
+package com.vminhoto.chirp.infra.database.entities
 
 
 import com.vminhoto.chirp.domain.type.ChatId
