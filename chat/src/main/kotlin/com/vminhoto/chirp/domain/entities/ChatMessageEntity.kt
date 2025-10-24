@@ -1,0 +1,67 @@
+package com.vminhoto.chirp.domain.entities
+
+
+import com.vminhoto.chirp.domain.type.ChatId
+import com.vminhoto.chirp.domain.type.ChatMessageId
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import org.hibernate.annotations.CreationTimestamp
+import java.time.Instant
+
+/**
+ * Data class representing a Chat in the backend system.
+ * @property id Id of the Chat.
+ * @property chatId Id of the [Chat] this Chat Message belongs to. Linked to Chat Entity.
+ * @property sender The [ChatParticipant] that sent the message. Linked to Chat Participant Entity.
+ * @property content The content of the message.
+ * @property createdAt The time the message was created.
+ */
+@Entity
+@Table(name = "chat_messages",
+    schema = "chat_service",
+    indexes = [
+        Index(
+            name = "idx_chat_message_chat_id_created_at",
+            columnList = "chat_id, createdAt DESC"
+        )
+    ]
+)
+class ChatMessageEntity(
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    var id: ChatMessageId? = null,
+    @Column(nullable = false)
+    var content: String,
+    @Column(
+        name = "chat_id",
+        nullable = false,
+        updatable = false
+    )
+    var chatId: ChatId,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "chat_id",
+        nullable = false,
+        insertable = false,
+        updatable = false
+    )
+    var chat: ChatEntity? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "sender_id",
+        nullable = false,
+        insertable = false,
+        updatable = false
+    )
+    var sender: ChatParticipantEntity? = null,
+    @CreationTimestamp
+    var createdAt: Instant = Instant.now(),
+)
