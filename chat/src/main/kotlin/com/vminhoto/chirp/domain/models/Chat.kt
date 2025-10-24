@@ -1,4 +1,4 @@
-package com.vminhoto.chat.domain.models
+package com.vminhoto.chirp.domain.models
 
 import com.vminhoto.chirp.domain.type.ChatId
 import java.time.Instant
