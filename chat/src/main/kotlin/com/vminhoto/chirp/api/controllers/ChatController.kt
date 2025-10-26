@@ -12,13 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * TODO add documentation
+ * Controller to handle chat APIs.
+ * @param chatService chat service.
  */
 @RestController
 @RequestMapping("/api/chat")
 class ChatController(
     private val chatService: ChatService
 ) {
+    /**
+     * Endpoint to create a chat. The creator ID is always the authenticated ChatParticipant.
+     * @param body A [CreateChatRequest] containing the participants.
+     */
     @PostMapping
     fun createChat(
         @Valid @RequestBody body: CreateChatRequest

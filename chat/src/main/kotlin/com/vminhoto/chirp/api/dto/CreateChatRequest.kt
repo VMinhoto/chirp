@@ -4,7 +4,8 @@ import com.vminhoto.chirp.domain.type.UserId
 import jakarta.validation.constraints.Size
 
 /**
- * TODO add documentation
+ * Data class holding the data about the request about creating a chat.
+ * @param otherUsersIds the Ids of the Chat Participants involved in the Chat. Must be at least 1.
  */
 data class CreateChatRequest(
     @field:Size(
