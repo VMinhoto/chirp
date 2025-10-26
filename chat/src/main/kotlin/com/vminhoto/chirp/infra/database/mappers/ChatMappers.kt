@@ -36,3 +36,16 @@ fun ChatParticipantEntity.toChatParticipant(): ChatParticipant {
         profilePictureUrl = profilePictureUrl
     )
 }
+
+/**
+ * Mapper to transform a [ChatParticipant] to a [ChatParticipantEntity] entity.
+ * @return [ChatParticipantEntity] Returns the corresponding [ChatParticipantEntity] entity instance.
+ */
+fun ChatParticipant.toChatParticipantEntity(): ChatParticipantEntity {
+    return ChatParticipantEntity(
+        userId = userId,
+        username = username,
+        email = email,
+        profilePictureUrl = profilePictureUrl
+    )
+}
