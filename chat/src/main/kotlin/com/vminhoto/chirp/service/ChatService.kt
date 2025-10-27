@@ -2,6 +2,8 @@ package com.vminhoto.chirp.service
 
 import com.vminhoto.chirp.api.dto.ChatMessageDto
 import com.vminhoto.chirp.api.mappers.toChatMessageDto
+import com.vminhoto.chirp.domain.event.ChatParticipantLeftEvent
+import com.vminhoto.chirp.domain.event.ChatParticipantsJoinedEvent
 import com.vminhoto.chirp.domain.exception.ChatNotFoundException
 import com.vminhoto.chirp.domain.exception.ChatParticipantNotFoundException
 import com.vminhoto.chirp.domain.exception.InvalidChatSizeException
@@ -16,6 +18,7 @@ import com.vminhoto.chirp.infra.database.mappers.toChatMessage
 import com.vminhoto.chirp.infra.database.repositories.ChatMessageRepository
 import com.vminhoto.chirp.infra.database.repositories.ChatParticipantRepository
 import com.vminhoto.chirp.infra.database.repositories.ChatRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -26,12 +29,15 @@ import java.time.Instant
  * Service Class to handle chat related operations and transactions with the Chat related repos
  * @property chatRepository Repository for the chat
  * @property chatParticipantRepository Repository for ChatParticipant
+ * @property chatMessageRepository Repository of the ChatMessage
+ * @property applicationEventPublisher
  */
 @Service
 class ChatService(
     private val chatRepository: ChatRepository,
     private val chatParticipantRepository: ChatParticipantRepository,
-    private val chatMessageRepository: ChatMessageRepository
+    private val chatMessageRepository: ChatMessageRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     /**
@@ -91,7 +97,7 @@ class ChatService(
     }
 
     /**
-     * Function that adds Participants to a chat.
+     * Function that adds Participants to a chat. Also fires an event through the application event mechanism.
      * @param requestUserId user that is performing the request
      * @param chatId Id of the chat the message is to be added.
      * @param userIds a set of UserIds corresponding to the users to be added.
@@ -131,12 +137,20 @@ class ChatService(
             }
         ).toChat(lastMessage = lastMessage)
 
+        applicationEventPublisher.publishEvent(
+            ChatParticipantsJoinedEvent(
+                chatId = chatId,
+                userIds = userIds
+            )
+        )
+
         return updatedChat
     }
 
     /**
      * Function to remove a participant from the chat. If the remaining Chat participants in the chat is equal to 0,
-     * remove the chat instead. Cascades deletes across schema (on chat messages and cross table)
+     * remove the chat instead. Cascades deletes across schema (on chat messages and cross table). Also fires an event
+     * through the application event mechanism.
      * @param chatId Id of the chat where the user is to be removed
      * @param userId Id of the user to be removed
      * @throws ChatParticipantNotFoundException if the user to be removed does not exist in the chat.
@@ -166,6 +180,13 @@ class ChatService(
             chat.apply {
                 this.participants = chat.participants - participant
             }
+        )
+
+        applicationEventPublisher.publishEvent(
+            ChatParticipantLeftEvent(
+                chatId = chatId,
+                userId = userId
+            )
         )
     }
 
