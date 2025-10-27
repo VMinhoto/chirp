@@ -1,5 +1,7 @@
 package com.vminhoto.chirp.service
 
+import com.vminhoto.chirp.api.dto.ChatMessageDto
+import com.vminhoto.chirp.api.mappers.toChatMessageDto
 import com.vminhoto.chirp.domain.exception.ChatNotFoundException
 import com.vminhoto.chirp.domain.exception.ChatParticipantNotFoundException
 import com.vminhoto.chirp.domain.exception.InvalidChatSizeException
@@ -14,9 +16,11 @@ import com.vminhoto.chirp.infra.database.mappers.toChatMessage
 import com.vminhoto.chirp.infra.database.repositories.ChatMessageRepository
 import com.vminhoto.chirp.infra.database.repositories.ChatParticipantRepository
 import com.vminhoto.chirp.infra.database.repositories.ChatRepository
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 /**
  * Service Class to handle chat related operations and transactions with the Chat related repos
@@ -29,6 +33,29 @@ class ChatService(
     private val chatParticipantRepository: ChatParticipantRepository,
     private val chatMessageRepository: ChatMessageRepository
 ) {
+
+    /**
+     * Function to get messages (paginated) before a certain Insatant.
+     * @param chatId Id of the chat
+     * @param before the instant before which messages are loaded
+     * @param pageSize size of the page.
+     * @return Chat Message Dto do be sent to the client
+     */
+    fun getChatMessages(
+        chatId: ChatId,
+        before: Instant?,
+        pageSize: Int
+    ): List<ChatMessageDto> {
+        return chatMessageRepository
+            .findByChatIdBefore(
+                chatId = chatId,
+                before = before ?: Instant.now(),
+                pageable = PageRequest.of(0, pageSize)
+            )
+            .content
+            .asReversed()
+            .map { it.toChatMessage().toChatMessageDto() }
+    }
 
     /**
      * This function creates a chat. It checks if there is a valid chat with more than 1 person.

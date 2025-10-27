@@ -33,28 +33,6 @@ class ChatMessageService(
     private val chatMessageRepository: ChatMessageRepository,
     private val chatParticipantRepository: ChatParticipantRepository
 ) {
-    /**
-     * Function to get messages (paginated) before a certain Insatant.
-     * @param chatId Id of the chat
-     * @param before the instant before which messages are loaded
-     * @param pageSize size of the page.
-     * @return Chat Message Dto do be sent to the client
-     */
-    fun getChatMessages(
-        chatId: ChatId,
-        before: Instant?,
-        pageSize: Int
-    ): List<ChatMessageDto> {
-        return chatMessageRepository
-            .findByChatIdBefore(
-                chatId = chatId,
-                before = before ?: Instant.now(),
-                pageable = PageRequest.of(0, pageSize)
-            )
-            .content
-            .asReversed()
-            .map { it.toChatMessage().toChatMessageDto() }
-    }
 
     /**
      * Function to send Messages. Verifies if chat and sender exists in the database.
