@@ -14,6 +14,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import java.time.Instant
 
 /**
@@ -53,6 +55,7 @@ class ChatMessageEntity(
         insertable = false,
         updatable = false
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     var chat: ChatEntity? = null,
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
@@ -61,7 +64,7 @@ class ChatMessageEntity(
         insertable = false,
         updatable = false
     )
-    var sender: ChatParticipantEntity? = null,
+    var sender: ChatParticipantEntity,
     @CreationTimestamp
     var createdAt: Instant = Instant.now(),
 )
