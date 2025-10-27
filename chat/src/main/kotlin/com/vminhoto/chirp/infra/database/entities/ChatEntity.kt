@@ -33,7 +33,7 @@ class ChatEntity(
     var id: ChatId? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-        name = "user_id",
+        name = "creator_id",
         nullable = false
     )
     var creator: ChatParticipantEntity,
