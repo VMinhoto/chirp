@@ -18,6 +18,7 @@ import com.vminhoto.chirp.infra.database.mappers.toChatMessage
 import com.vminhoto.chirp.infra.database.repositories.ChatMessageRepository
 import com.vminhoto.chirp.infra.database.repositories.ChatParticipantRepository
 import com.vminhoto.chirp.infra.database.repositories.ChatRepository
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
@@ -41,12 +42,19 @@ class ChatService(
 ) {
 
     /**
-     * Function to get messages (paginated) before a certain Insatant.
+     * Function to get messages (paginated) before a certain Insatant. It returns the DTO because of caching, otherwise
+     * it would cache a cascade of objects.
      * @param chatId Id of the chat
      * @param before the instant before which messages are loaded
      * @param pageSize size of the page.
      * @return Chat Message Dto do be sent to the client
      */
+    @Cacheable(
+        value = ["messages"],
+        key="#chatId",
+        condition = "#before == null && #pageSize <= 50",
+        sync = true
+    )
     fun getChatMessages(
         chatId: ChatId,
         before: Instant?,
