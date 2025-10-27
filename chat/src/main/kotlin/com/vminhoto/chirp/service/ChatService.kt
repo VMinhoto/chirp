@@ -27,8 +27,8 @@ class ChatService(
      * This function creates a chat. It checks if there is a valid chat with more than 1 person.
      * @param creatorId the Id of the creator of the chat
      * @param otherUserIds [Set] of [UserId] corresponding to the Participants to be Added to the chat.
-     * @throws InvalidChatSizeException if the total participants are less then 2.
-     * @throws ChatParticipantNotFoundException if the a chat participant is not found in the database.
+     * @throws InvalidChatSizeException if the total participants are less than 2.
+     * @throws ChatParticipantNotFoundException if the chat participant is not found in the database.
      */
     @Transactional
     fun createChat(
