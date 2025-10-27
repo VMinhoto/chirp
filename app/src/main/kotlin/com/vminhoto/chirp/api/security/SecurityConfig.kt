@@ -1,4 +1,4 @@
-package com.vminhoto.chirp.security
+package com.vminhoto.chirp.api.security
 
 import com.vminhoto.chirp.api.config.JwtAuthFilter
 import jakarta.servlet.DispatcherType
