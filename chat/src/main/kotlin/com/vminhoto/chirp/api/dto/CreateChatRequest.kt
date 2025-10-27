@@ -1,5 +1,6 @@
 package com.vminhoto.chirp.api.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.vminhoto.chirp.domain.type.UserId
 import jakarta.validation.constraints.Size
 
@@ -12,5 +13,6 @@ data class CreateChatRequest(
         min = 1,
         message = "The chat must have at least 2 unique participants"
     )
+    @JsonProperty("otherUserIds")
     val otherUsersIds: List<UserId>
 )
