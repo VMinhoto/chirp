@@ -9,11 +9,13 @@ import com.vminhoto.chirp.api.dto.ws.IncomingWebSocketMessage
 import com.vminhoto.chirp.api.dto.ws.IncomingWebSocketMessageType
 import com.vminhoto.chirp.api.dto.ws.OutgoingWebSocketMessage
 import com.vminhoto.chirp.api.dto.ws.OutgoingWebSocketMessageType
+import com.vminhoto.chirp.api.dto.ws.ProfilePictureUpdateDto
 import com.vminhoto.chirp.api.dto.ws.SendMessageDto
 import com.vminhoto.chirp.api.mappers.toChatMessageDto
 import com.vminhoto.chirp.domain.event.ChatParticipantLeftEvent
 import com.vminhoto.chirp.domain.event.ChatParticipantsJoinedEvent
 import com.vminhoto.chirp.domain.event.MessageDeletedEvent
+import com.vminhoto.chirp.domain.event.ProfilePictureUpdatedEvent
 import com.vminhoto.chirp.domain.type.ChatId
 import com.vminhoto.chirp.domain.type.UserId
 import com.vminhoto.chirp.service.ChatMessageService
@@ -347,6 +349,50 @@ class ChatWebSocketHandler(
                 )
             )
         )
+    }
+
+    /**
+     * Function to broadcast to all listening members of the chat that a participant updates its profile picture.
+     * @param event
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onProfilePictureUpdated(event: ProfilePictureUpdatedEvent) {
+        val useChats = connectionLock.read {
+            userChatIds[event.userId]?.toList() ?: emptyList()
+        }
+
+        val dto = ProfilePictureUpdateDto(
+            userId = event.userId,
+            newUrl = event.newUrl
+        )
+
+        val sessionIds = mutableSetOf<String>()
+        useChats.forEach { chatId ->
+            connectionLock.read {
+                chatToSessions[chatId]?.let { sessions ->
+                    sessionIds.addAll(sessions)
+                }
+            }
+        }
+
+        val webSocketMessage = OutgoingWebSocketMessage(
+            type = OutgoingWebSocketMessageType.PROFILE_PICTURE_UPDATED,
+            payload = objectMapper.writeValueAsString(dto)
+        )
+        val messageJson = objectMapper.writeValueAsString(webSocketMessage)
+
+        sessionIds.forEach { sessionId ->
+            val userSession = connectionLock.read {
+                sessions[sessionId]
+            } ?: return@forEach
+            try {
+                if(userSession.session.isOpen) {
+                    userSession.session.sendMessage(TextMessage(messageJson))
+                }
+            } catch (e: Exception) {
+                logger.error("Could not send profile picture update to session $sessionId", e)
+            }
+        }
     }
 
     private fun sendError(
