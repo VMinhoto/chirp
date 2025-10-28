@@ -1,4 +1,4 @@
-package com.vminhoto.chirp.domain.exception
+package com.vminhoto.chirp.domain.exceptions
 
 class InvalidTokenException(
     override val message: String?,

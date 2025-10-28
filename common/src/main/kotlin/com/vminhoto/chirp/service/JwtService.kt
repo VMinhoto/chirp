@@ -1,6 +1,6 @@
 package com.vminhoto.chirp.service
 
-import com.vminhoto.chirp.domain.exception.InvalidTokenException
+import com.vminhoto.chirp.domain.exceptions.InvalidTokenException
 import com.vminhoto.chirp.domain.type.UserId
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 import java.util.Date
 import java.util.UUID
 import kotlin.io.encoding.Base64
-
 
 @Service
 class JwtService(

@@ -1,7 +1,7 @@
 package com.vminhoto.chirp.service
 
 import com.vminhoto.chirp.domain.events.user.UserEvent
-import com.vminhoto.chirp.domain.exception.InvalidTokenException
+import com.vminhoto.chirp.domain.exceptions.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
 import com.vminhoto.chirp.domain.model.EmailVerificationToken
 import com.vminhoto.chirp.infra.database.entities.EmailVerificationTokenEntity

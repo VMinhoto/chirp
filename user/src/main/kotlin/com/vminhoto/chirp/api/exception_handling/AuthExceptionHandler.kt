@@ -2,7 +2,7 @@ package com.vminhoto.chirp.api.exception_handling
 
 import com.vminhoto.chirp.domain.exception.EmailNotVerifiedException
 import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
-import com.vminhoto.chirp.domain.exception.InvalidTokenException
+import com.vminhoto.chirp.domain.exceptions.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.RateLimitException
 import com.vminhoto.chirp.domain.exception.SamePasswordException
 import com.vminhoto.chirp.domain.exceptions.UnauthorizedException

@@ -3,7 +3,7 @@ package com.vminhoto.chirp.service
 import com.vminhoto.chirp.domain.events.user.UserEvent
 import com.vminhoto.chirp.domain.exception.EmailNotVerifiedException
 import com.vminhoto.chirp.domain.exception.InvalidCredentialsException
-import com.vminhoto.chirp.domain.exception.InvalidTokenException
+import com.vminhoto.chirp.domain.exceptions.InvalidTokenException
 import com.vminhoto.chirp.domain.exception.UserAlreadyExistsException
 import com.vminhoto.chirp.domain.exception.UserNotFoundException
 import com.vminhoto.chirp.domain.model.AuthenticatedUser
