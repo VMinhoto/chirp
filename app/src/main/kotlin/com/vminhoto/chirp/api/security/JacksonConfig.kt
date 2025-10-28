@@ -1,6 +1,7 @@
 package com.vminhoto.chirp.api.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.context.annotation.Bean
@@ -13,6 +14,7 @@ class JacksonConfig {
     fun objectMapper(): ObjectMapper {
         return jacksonObjectMapper()
             .registerModule(KotlinModule.Builder().build())
+            .registerModule(JavaTimeModule())
     }
 
 }
