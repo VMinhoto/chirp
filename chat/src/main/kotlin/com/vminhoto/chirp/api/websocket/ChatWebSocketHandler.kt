@@ -21,10 +21,13 @@ import com.vminhoto.chirp.service.ChatService
 import com.vminhoto.chirp.service.JwtService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.web.socket.CloseStatus
+import org.springframework.web.socket.PingMessage
+import org.springframework.web.socket.PongMessage
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
@@ -47,6 +50,11 @@ class ChatWebSocketHandler(
     private val chatService: ChatService,
     private val jwtService: JwtService
     ): TextWebSocketHandler() {
+
+    companion object {
+        private const val PING_INTERVAL_MS = 30_000L
+        private const val PONG_TIMEOUT_MS = 60_000L
+    }
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -210,6 +218,64 @@ class ChatWebSocketHandler(
     }
 
     /**
+     * Function to handle pong message and update the last pong timestamp on the sessions.
+     * @param session
+     * @param message
+     */
+    override fun handlePongMessage(session: WebSocketSession, message: PongMessage) {
+        connectionLock.write {
+            sessions.compute(session.id) {_, userSession ->
+                userSession?.copy(
+                    lastPongTimestamp = System.currentTimeMillis()
+                )
+            }
+        }
+        logger.debug("Received pong from ${session.id}")
+    }
+
+    /**
+     * Function to periodically ping all clients with open connections.
+     */
+    @Scheduled(fixedDelay = PING_INTERVAL_MS)
+    fun pingClients() {
+        val currentTime = System.currentTimeMillis()
+        val sessionsToClose = mutableListOf<String>()
+
+        val sessionsSnapshot = connectionLock.read { sessions.toMap() }
+
+        sessionsSnapshot.forEach { (sessionId, userSession) ->
+            try {
+                if(userSession.session.isOpen) {
+                    val lastPong = userSession.lastPongTimestamp
+                    if (currentTime - lastPong > PONG_TIMEOUT_MS) {
+                        logger.warn("Session $sessionId has timed out, closing connection.")
+                        sessionsToClose.add(sessionId)
+                        return@forEach
+                    }
+
+                    userSession.session.sendMessage(PingMessage())
+                    logger.debug("Send ping to {}", userSession.userId)
+                }
+            } catch (e: Exception){
+                logger.error("Could not ping session $sessionId", e)
+                sessionsToClose.add(sessionId)
+            }
+        }
+
+        sessionsToClose.forEach { sessionId ->
+            connectionLock.read {
+                sessions[sessionId]?.session?.let { session ->
+                    try {
+                        session.close(CloseStatus.GOING_AWAY.withReason("Ping timeout."))
+                    } catch(e: Exception) {
+                        logger.error("Couldn't close session for session $sessionId", e)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Function to broadcast to all listening members of the chat that a participant left chat.
      * @param event representing a user left chat event.
      */
@@ -337,6 +403,7 @@ class ChatWebSocketHandler(
      */
     private data class UserSession(
         val userId: UserId,
-        val session: WebSocketSession
+        val session: WebSocketSession,
+        val lastPongTimestamp: Long = System.currentTimeMillis()
     )
 }
