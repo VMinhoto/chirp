@@ -5,7 +5,6 @@ import com.vminhoto.chirp.domain.exception.StorageException
 import com.vminhoto.chirp.domain.models.ProfilePictureUploadCredentials
 import com.vminhoto.chirp.domain.type.UserId
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import java.time.Instant
@@ -14,12 +13,12 @@ import java.util.UUID
 /**
  * Service to handle Supabase calls
  * @param supabaseUrl the base URL for supabase calls
- * @param supabaseClient The REST client to make calls
+ * @param supabaseRestClient The REST client to make calls
  */
 @Service
 class SupabaseStorageService(
     @param:Value("\${supabase.url") private val supabaseUrl: String,
-    private val supabaseClient: RestClient,
+    private val supabaseRestClient: RestClient,
 ) {
     companion object {
         private val allowedMimeTypes = mapOf(
@@ -72,7 +71,7 @@ class SupabaseStorageService(
             { "expiresIn": $expiresInSeconds }
         """.trimIndent()
 
-        val response = supabaseClient
+        val response = supabaseRestClient
             .post()
             .uri("/storage/v1/objects/upload/sign/$path")
             .body(json)
@@ -96,7 +95,7 @@ class SupabaseStorageService(
 
         val deleteUrl = "/storage/v1/object/$path"
 
-        val response = supabaseClient
+        val response = supabaseRestClient
             .delete()
             .uri(deleteUrl)
             .retrieve()
