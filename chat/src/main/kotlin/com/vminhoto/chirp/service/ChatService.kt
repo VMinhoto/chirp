@@ -72,6 +72,40 @@ class ChatService(
     }
 
     /**
+     * Function to get a chat by id.
+     * @param chatId Id of the Chat.
+     * @param requestUserId the Id of the user requesting the chat.
+     * @return a chat domain model. Can be null.
+     */
+    fun getChatById(
+        chatId: ChatId,
+        requestUserId: UserId
+    ): Chat? {
+        return chatRepository
+            .findChatBy(chatId, requestUserId)
+            ?.toChat(lastMessageForChat(chatId))
+    }
+
+    /**
+     * Function to get every chat the User belongs to.
+     * @param userId the Id of the user.
+     * @return A list of chats the user belongs to.
+     */
+    fun findChatsByUser(userId: UserId): List<Chat> {
+        val chatEntities = chatRepository.findAllByUserId(userId)
+        val chatIds = chatEntities.mapNotNull { it.id }
+        val latestMessages = chatMessageRepository
+            .findLatestMessagesByChatIds(chatIds.toSet())
+            .associateBy { it.chatId }
+
+        return chatEntities
+            .map {
+                it.toChat(lastMessage = latestMessages[it.id]?.toChatMessage())
+            }
+            .sortedByDescending { it.lastActivityAt }
+    }
+
+    /**
      * This function creates a chat. It checks if there is a valid chat with more than 1 person.
      * @param creatorId the Id of the creator of the chat
      * @param otherUserIds [Set] of [UserId] corresponding to the Participants to be Added to the chat.

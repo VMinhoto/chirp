@@ -10,6 +10,7 @@ import com.vminhoto.chirp.domain.type.ChatId
 import com.vminhoto.chirp.service.ChatMessageService
 import com.vminhoto.chirp.service.ChatService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 
 /**
@@ -55,6 +57,33 @@ class ChatController(
             before = before,
             pageSize = pageSize
         )
+    }
+
+    /**
+     * Function to get a specific chat.
+     * @param chatId comes from URL
+     * @return A ChatDto
+     * @throws ResponseStatusException of NOT_FOUND if the chat does not exist.
+     */
+    @GetMapping("/{chatID}")
+    fun getChat(
+        @PathVariable("chatID") chatId: ChatId,
+    ): ChatDto {
+        return chatService.getChatById(
+            chatId = chatId,
+            requestUserId = requestUserId
+        )?.toChatDto() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    }
+
+    /**
+     * Function to get all chats for a user.
+     * @return List of Chat Dtos.
+     */
+    @GetMapping
+    fun getChatsForUser(): List<ChatDto>{
+        return chatService.findChatsByUser(
+            requestUserId
+        ).map { it.toChatDto() }
     }
 
     /**
