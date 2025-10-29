@@ -1,5 +1,6 @@
 package com.vminhoto.chirp.infra.storage
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.vminhoto.chirp.domain.exception.InvalidProfilePictureException
 import com.vminhoto.chirp.domain.exception.StorageException
 import com.vminhoto.chirp.domain.models.ProfilePictureUploadCredentials
@@ -17,7 +18,7 @@ import java.util.UUID
  */
 @Service
 class SupabaseStorageService(
-    @param:Value("\${supabase.url") private val supabaseUrl: String,
+    @param:Value("\${supabase.url}") private val supabaseUrl: String,
     private val supabaseRestClient: RestClient,
 ) {
     companion object {
@@ -56,32 +57,6 @@ class SupabaseStorageService(
             expiresAt = Instant.now().plusSeconds(300)
         )
     }
-
-    /**
-     * Creates a signed URL from the Supabase endpoint
-     * @param path the path of the picture we want.
-     * @param expiresInSeconds the time for the URL to expire.
-     * @return a String of the supabase URL to upload the picture.
-     */
-    private fun createSignedUrl(
-        path: String,
-        expiresInSeconds: Int
-    ): String {
-        val json = """
-            { "expiresIn": $expiresInSeconds }
-        """.trimIndent()
-
-        val response = supabaseRestClient
-            .post()
-            .uri("/storage/v1/objects/upload/sign/$path")
-            .body(json)
-            .retrieve()
-            .body(SignedUploadResponse::class.java)
-            ?: throw StorageException("Failed to create signed URL")
-
-        return "$supabaseUrl/storage/v1${response.url}"
-    }
-
     /**
      * Function to delete a file. Builds the path from the base supabase URL and the picture URL
      * and makes the delete request.
@@ -102,15 +77,43 @@ class SupabaseStorageService(
             .toBodilessEntity()
 
         if(response.statusCode.isError) {
-            throw StorageException("Unable to delete file: ${response.statusCode}")
+            throw StorageException("Unable to delete file: ${response.statusCode.value()}")
         }
     }
+
+    /**
+     * Creates a signed URL from the Supabase endpoint
+     * @param path the path of the picture we want.
+     * @param expiresInSeconds the time for the URL to expire.
+     * @return a String of the supabase URL to upload the picture.
+     */
+    private fun createSignedUrl(
+        path: String,
+        expiresInSeconds: Int
+    ): String {
+        val json = """
+            { "expiresIn": $expiresInSeconds }
+        """.trimIndent()
+
+        val response = supabaseRestClient
+            .post()
+            .uri("/storage/v1/object/upload/sign/$path")
+            .header("Content-Type", "application/json")
+            .body(json)
+            .retrieve()
+            .body(SignedUploadResponse::class.java)
+            ?: throw StorageException("Failed to create signed URL")
+
+        return "$supabaseUrl/storage/v1${response.url}"
+    }
+
 
     /**
      * Data class for body parsing
      * @param url the URL of the response.
      */
     private data class SignedUploadResponse(
+        @JsonProperty("url")
         val url: String
     )
 }

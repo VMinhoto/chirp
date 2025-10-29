@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient
  */
 @Configuration
 class SupabaseRestClientConfig(
-    @param:Value("\${supabase.url") private val supabaseUrl: String,
+    @param:Value("\${supabase.url}") private val supabaseUrl: String,
     @param:Value("\${supabase.service.key}") private val supabaseServiceKey: String
 ) {
 
@@ -21,7 +21,6 @@ class SupabaseRestClientConfig(
         return RestClient.builder()
             .baseUrl(supabaseUrl)
             .defaultHeader("Authorization", "Bearer $supabaseServiceKey")
-            .defaultHeader("Content-Type", "application/json")
             .build()
     }
 }
