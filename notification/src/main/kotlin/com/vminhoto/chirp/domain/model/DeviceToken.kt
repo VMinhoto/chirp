@@ -1,5 +1,6 @@
 package com.vminhoto.chirp.domain.model
 
+import com.vminhoto.chirp.domain.type.UserId
 import java.time.Instant
 
 /**
@@ -12,7 +13,7 @@ import java.time.Instant
  */
 data class DeviceToken(
     val id: Long,
-    val userId: String,
+    val userId: UserId,
     val token: String,
     val platform: Platform,
     val createdAt: Instant = Instant.now()
