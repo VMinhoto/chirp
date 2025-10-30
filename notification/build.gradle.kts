@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.spring.boot.starter.amqp)
     implementation(libs.spring.boot.starter.thymeleaf)
     implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.validation)
 
     runtimeOnly(libs.postgresql)
 
