@@ -5,5 +5,6 @@ package com.vminhoto.chirp.infra.message_queue
  */
 object MessageQueues {
     const val NOTIFICATION_USER_EVENTS = "notification_user_events"
+    const val NOTIFICATION_CHAT_EVENTS = "notification_chat_events"
     const val CHAT_USER_EVENTS = "chat_user_events"
 }
