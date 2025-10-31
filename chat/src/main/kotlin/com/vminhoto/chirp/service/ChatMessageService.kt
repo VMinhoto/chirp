@@ -25,6 +25,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.util.UUID
 
 /**
  * Service related to Messages Operations and interactions with Chat Repositories.
@@ -73,7 +74,7 @@ class ChatMessageService(
         // and to filter its own message.
         val savedMessage = chatMessageRepository.saveAndFlush(
             ChatMessageEntity(
-                id = messageId,
+                id = messageId ?: UUID.randomUUID(),
                 content = content.trim(),
                 chatId = chatId,
                 chat = chat,
