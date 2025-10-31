@@ -27,13 +27,13 @@ jobs:
           mkdir -p app/src/main/resources/firebase-credentials
           echo "${{ secrets.FIREBASE_CREDENTIALS_BASE64 }}" | base64 -d > app/src/main/resources/firebase-credentials/chirp-firebase-adminsdk.json
 
-      - name: Build JAR
-        run: |
-          ./gradlew :app:bootJar
-
       # Added Code
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+
+      - name: Build JAR
+        run: |
+          ./gradlew :app:bootJar
 
       - name: Deploy JAR to Server
         run: |
