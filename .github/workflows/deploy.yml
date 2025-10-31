@@ -31,6 +31,10 @@ jobs:
         run: |
           ./gradlew :app:bootJar
 
+      # Added Code
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       - name: Deploy JAR to Server
         run: |
           JAR_NAME="app-0.0.1-SNAPSHOT.jar"
