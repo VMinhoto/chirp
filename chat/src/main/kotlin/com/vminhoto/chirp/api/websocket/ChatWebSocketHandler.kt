@@ -12,6 +12,7 @@ import com.vminhoto.chirp.api.dto.ws.OutgoingWebSocketMessageType
 import com.vminhoto.chirp.api.dto.ws.ProfilePictureUpdateDto
 import com.vminhoto.chirp.api.dto.ws.SendMessageDto
 import com.vminhoto.chirp.api.mappers.toChatMessageDto
+import com.vminhoto.chirp.domain.event.ChatCreatedEvent
 import com.vminhoto.chirp.domain.event.ChatParticipantLeftEvent
 import com.vminhoto.chirp.domain.event.ChatParticipantsJoinedEvent
 import com.vminhoto.chirp.domain.event.MessageDeletedEvent
@@ -230,18 +231,11 @@ class ChatWebSocketHandler(
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun onJoinChat(event: ChatParticipantsJoinedEvent) {
         connectionLock.write {
-            event.userIds.forEach { userId ->
-                userChatIds.compute(userId) {_, chatIds ->
-                    (chatIds ?: mutableSetOf()).apply {
-                        add(event.chatId)
-                    }
-                }
-
-                userToSessions[userId]?.forEach { sessionId ->
-                    chatToSessions.compute(event.chatId) {_, sessions ->
-                        (sessions ?: mutableSetOf()).apply {add(sessionId)}
-                    }
-                }
+            connectionLock.write {
+                updateChatForUsers(
+                    chatId = event.chatId,
+                    userIds = event.userIds.toList()
+                )
             }
         }
 
@@ -256,6 +250,39 @@ class ChatWebSocketHandler(
                 )
             )
         )
+    }
+
+    /**
+     * Function to update the Hash maps when a chat is created.
+     * @param event representing a chat created event.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onChatCreated(event: ChatCreatedEvent) {
+        connectionLock.write {
+            updateChatForUsers(
+                chatId = event.chatId,
+                userIds = event.participantIds
+            )
+        }
+    }
+
+    private fun updateChatForUsers(
+        chatId: ChatId,
+        userIds: List<UserId>
+    ) {
+        userIds.forEach { userId ->
+            userChatIds.compute(userId) {_, chatIds ->
+                (chatIds ?: mutableSetOf()).apply {
+                    add(chatId)
+                }
+            }
+
+            userToSessions[userId]?.forEach { sessionId ->
+                chatToSessions.compute(chatId) {_, sessions ->
+                    (sessions ?: mutableSetOf()).apply {add(sessionId)}
+                }
+            }
+        }
     }
 
     /**
